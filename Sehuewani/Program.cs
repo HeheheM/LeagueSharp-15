@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -70,12 +71,17 @@ namespace Sehuewani
             _config.AddSubMenu(new Menu("Orbwalker", "Orbwalker"));
             _orbwalker = new Orbwalking.Orbwalker(_config.SubMenu("Orbwalker"));
 
+            // Combo
             _config.AddSubMenu(new Menu("Combo", "Combo"));
             _config.SubMenu("Combo").AddItem(new MenuItem("useQ", "Use Q")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("useW", "Use W")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("useE", "Use E")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("useR", "Use Ult")).SetValue(true);
-            //_config.SubMenu("Combo").AddItem(new MenuItem("minHit", "Minimum Hit")).SetValue(new Slider(2, 1, 5));
+            _config.SubMenu("Combo").AddItem(new MenuItem("minHit", "Minimum Hit")).SetValue(new Slider(2, 1, 5));
+
+            // Packets
+            _config.AddSubMenu(new Menu("Packets", "Packets"));
+            _config.SubMenu("Packets").AddItem(new MenuItem("usePackets", "Use Packets")).SetValue(true);
 
             _config.AddToMainMenu();
         }
@@ -92,7 +98,7 @@ namespace Sehuewani
                 if (target == null) return;
                 if (_config.Item("useQ").GetValue<bool>() && target.Distance(_player) <= _q.Range && _q.IsReady())
                 {
-                    _q.Cast(target);
+                    _q.Cast(target, _config.Item("usePackets").GetValue<bool>());
                 }
 
                 if (_config.Item("useW").GetValue<bool>() && target.Distance(_player) <= _w.Range && _w.IsReady())
@@ -102,32 +108,41 @@ namespace Sehuewani
 
                 if (_config.Item("useE").GetValue<bool>() && target.Distance(_player) <= _e.Range && _e.IsReady())
                 {
-                    _e.Cast();
+                    CastE();
                 }
 
                 if (_config.Item("useR").GetValue<bool>() && target.Distance(_player) <= _r.Range && _r.IsReady())
                 {
-                    _r.Cast(target);
+                    AutoR();
                 }
             }
         }
 
-        //private static void CheckMec()
-        //{
-        //    var minHit = _config.Item("minHit").GetValue<Slider>().Value;
-        //    if (minHit == 0) return;
+        private static void AutoR()
+        {
+            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy && !enemy.IsDead && CountChampsAtArea(enemy, 350f) >= _config.Item("minHit").GetValue<Slider>().Value))
+            {
+                _r.Cast(enemy);
+            }
+        }
 
-        //    foreach (Obj_AI_Base enemy in ObjectManager.Get<Obj_AI_Hero>().Where(x => _player.Distance(x) < _r.Range && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
-        //    {
-        //        if (enemy != null && enemy.Distance(_player.ServerPosition) <= _r.Range && _r.IsReady())
-        //        {
-        //            var pred = _r.GetPrediction(enemy);
-        //            if (pred.AoeTargetsHitCount > minHit)
-        //            {
-        //                _r.Cast(pred.CastPosition);
-        //            }
-        //        }
-        //    }
-        //}
+        private static int CountChampsAtArea(Obj_AI_Hero unit, float range)
+        {
+            return ObjectManager.Get<Obj_AI_Hero>().Count(enemy => enemy.IsEnemy && !enemy.IsDead && enemy.Distance(unit) < range);
+        }
+
+        private static void CastE()
+        {
+            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy && !enemy.IsDead))
+            {
+                foreach (BuffInstance buff in enemy.Buffs)
+                {
+                    if (buff.Name == "SejuaniFrost")
+                    {
+                        _e.Cast();
+                    }
+                }
+            }
+        }
     }
 }
