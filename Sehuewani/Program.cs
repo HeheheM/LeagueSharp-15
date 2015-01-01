@@ -54,8 +54,8 @@ namespace Sehuewani
             _e = new Spell(SpellSlot.E, 1000f);
             _r = new Spell(SpellSlot.R, 1175f);
 
-            _q.SetSkillshot(0f, 70f, 1600f, false, SkillshotType.SkillshotLine);
-            _r.SetSkillshot(0.25f, 110f, 1600f, false, SkillshotType.SkillshotLine);
+            _q.SetSkillshot(_q.Instance.SData.SpellCastTime, _q.Instance.SData.LineWidth, _q.Instance.SData.MissileSpeed, false, SkillshotType.SkillshotLine);
+            _r.SetSkillshot(_r.Instance.SData.SpellCastTime, _r.Instance.SData.LineWidth, _r.Instance.SData.MissileSpeed, false, SkillshotType.SkillshotLine);
 
             SpellList.Add(_q);
             SpellList.Add(_w);
@@ -116,9 +116,16 @@ namespace Sehuewani
                     _w.Cast();
                 }
 
-                if (_config.Item("useE").GetValue<bool>() && target.Distance(_player) <= _e.Range && _e.IsReady())
+                if (_config.Item("useE").GetValue<bool>() && target.Distance(_player) <= _e.Range)
                 {
-                    CastE();
+                    foreach (
+                        var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy && !enemy.IsDead))
+                    {
+                        if (enemy.HasBuff("SejuaniFrost") && _e.IsReady())
+                        {
+                            _e.Cast();
+                        }
+                    }
                 }
 
                 if (_config.Item("useR").GetValue<bool>() && target.Distance(_player) <= _r.Range && _r.IsReady())
@@ -164,20 +171,6 @@ namespace Sehuewani
         private static int CountChampsAtArea(Obj_AI_Hero unit, float range)
         {
             return ObjectManager.Get<Obj_AI_Hero>().Count(enemy => enemy.IsEnemy && !enemy.IsDead && enemy.Distance(unit) < range);
-        }
-
-        private static void CastE()
-        {
-            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy && !enemy.IsDead))
-            {
-                foreach (BuffInstance buff in enemy.Buffs)
-                {
-                    if (buff.Name == "SejuaniFrost")
-                    {
-                        _e.Cast();
-                    }
-                }
-            }
         }
     }
 }
