@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
+using SharpDX;
+using Color = System.Drawing.Color;
 
 namespace Sehuewani
 {
@@ -40,6 +42,7 @@ namespace Sehuewani
             Config();
 
             Game.OnGameUpdate += Game_OnGameUpdate;
+            Drawing.OnDraw += Game_OnDraw;
             Game.PrintChat("Sehuewani by Aureus Loaded!");
 
         }
@@ -83,6 +86,13 @@ namespace Sehuewani
             _config.AddSubMenu(new Menu("Packets", "Packets"));
             _config.SubMenu("Packets").AddItem(new MenuItem("usePackets", "Use Packets")).SetValue(true);
 
+            // Drawing
+            _config.AddSubMenu(new Menu("Drawing", "Drawing"));
+            _config.SubMenu("Drawing").AddItem(new MenuItem("drawQ", "Draw Q Range")).SetValue(new Circle(true, Color.FromArgb(70, 198, 46, 105)));
+            _config.SubMenu("Drawing").AddItem(new MenuItem("drawW", "Draw W Range")).SetValue(new Circle(true, Color.FromArgb(70, 198, 46, 105)));
+            _config.SubMenu("Drawing").AddItem(new MenuItem("drawE", "Draw E Range")).SetValue(new Circle(true, Color.FromArgb(70, 198, 46, 105)));
+            _config.SubMenu("Drawing").AddItem(new MenuItem("drawR", "Draw R Range")).SetValue(new Circle(true, Color.FromArgb(70, 198, 46, 105)));
+
             _config.AddToMainMenu();
         }
 
@@ -115,6 +125,31 @@ namespace Sehuewani
                 {
                     AutoR();
                 }
+            }
+        }
+
+        private static void Game_OnDraw(EventArgs args)
+        {
+            var circle = _config.Item("drawQ").GetValue<Circle>();
+
+            if (_config.Item("drawQ").GetValue<Circle>().Active)
+            {
+                Utility.DrawCircle(_player.Position, _q.Range, circle.Color);
+            }
+
+            if (_config.Item("drawW").GetValue<Circle>().Active)
+            {
+                Utility.DrawCircle(_player.Position, _w.Range, circle.Color);
+            }
+
+            if (_config.Item("drawE").GetValue<Circle>().Active)
+            {
+                Utility.DrawCircle(_player.Position, _e.Range, circle.Color);
+            }
+
+            if (_config.Item("drawR").GetValue<Circle>().Active)
+            {
+                Utility.DrawCircle(_player.Position, _r.Range, circle.Color);
             }
         }
 
