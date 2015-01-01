@@ -25,8 +25,6 @@ namespace Heimerdinger
         private static Spell W;
         private static Spell E;
         private static Spell R;
-
-        private static List<string> enhanceList = new List<string>(); 
         
         public static void Main(string[] args)
         {
@@ -42,10 +40,6 @@ namespace Heimerdinger
             Config();
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
-
-            enhanceList.Add("Q");
-            enhanceList.Add("W");
-            enhanceList.Add("E");
 
             Game.PrintChat("Heimerdinger by Aureus Loaded!");
         }
@@ -91,71 +85,86 @@ namespace Heimerdinger
             // Combo mode
             if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
             {
-                var target = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Magical);
-
-                if (target == null) return;
-
-                if (_config.Item("useE").GetValue<bool>() && E.IsReady() && target.Distance(_player) < E.Range)
-                {
-                    E.CastIfHitchanceEquals(target, 
-                        target.IsMoving ? HitChance.High : HitChance.Medium,
-                        _config.Item("usePackets").GetValue<bool>()
-                        );
-                }
-
-                if (_config.Item("useW").GetValue<bool>() && W.IsReady() &&
-                    target.Distance(_player) < W.Range)
-                {
-                    W.CastIfHitchanceEquals(target, 
-                        target.IsMoving ? HitChance.High : HitChance.Medium,
-                        _config.Item("usePackets").GetValue<bool>());
-                }
-
-                if (_config.Item("useQ").GetValue<bool>() && Q.IsReady() && target.Distance(_player) < Q.Range)
-                {
-                    Q.Cast(_player.Position);
-                }
+                Combo();
             }
 
             // Harass / Mixed
             if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
             {
-                var target = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Magical);
-
-                if (target == null) return;
-                if (_config.Item("harassW").GetValue<bool>() && W.IsReady() && target.Distance(_player) < W.Range)
-                {
-                    W.CastIfHitchanceEquals(target, 
-                        target.IsMoving ? HitChance.High : HitChance.Medium,
-                        _config.Item("usePackets").GetValue<bool>());
-                }
-
-                if (_config.Item("harassE").GetValue<bool>() && E.IsReady() && target.Distance(_player) < E.Range)
-                {
-                    E.CastIfHitchanceEquals(target,
-                        target.IsMoving ? HitChance.High : HitChance.Medium,
-                        _config.Item("usePackets").GetValue<bool>()
-                        );
-                }
+                Harass();
             }
 
             // LaneClear
             if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear)
             {
-                if (_config.Item("clearE").GetValue<bool>())
-                {
-                    var farmLocation =
-                        MinionManager.GetBestCircularFarmLocation(
-                            MinionManager.GetMinions(_player.Position, E.Range)
-                                .Select(minion => minion.ServerPosition.To2D())
-                                .ToList(), E.Width, E.Range);
+                LaneClear();
+            }
+        }
 
-                    if (_config.Item("minLCHit").GetValue<Slider>().Value >= farmLocation.MinionsHit &&
-                        _player.Distance(farmLocation.Position) <= E.Range)
-                    {
-                        E.Cast(farmLocation.Position);
-                    }
+        private static void Combo()
+        {
+            var target = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Magical);
+
+            if (target == null) return;
+
+            if (_config.Item("useE").GetValue<bool>() && E.IsReady() && target.Distance(_player) < E.Range)
+            {
+                E.CastIfHitchanceEquals(target,
+                    target.IsMoving ? HitChance.High : HitChance.Medium,
+                    _config.Item("usePackets").GetValue<bool>()
+                    );
+            }
+
+            if (_config.Item("useW").GetValue<bool>() && W.IsReady() &&
+                target.Distance(_player) < W.Range)
+            {
+                W.CastIfHitchanceEquals(target,
+                    target.IsMoving ? HitChance.High : HitChance.Medium,
+                    _config.Item("usePackets").GetValue<bool>());
+            }
+
+            if (_config.Item("useQ").GetValue<bool>() && Q.IsReady() && target.Distance(_player) < Q.Range)
+            {
+                Q.Cast(_player.Position);
+            }
+        }
+
+        private static void LaneClear()
+        {
+            if (_config.Item("clearE").GetValue<bool>())
+            {
+                var farmLocation =
+                    MinionManager.GetBestCircularFarmLocation(
+                        MinionManager.GetMinions(_player.Position, E.Range)
+                            .Select(minion => minion.ServerPosition.To2D())
+                            .ToList(), E.Width, E.Range);
+
+                if (_config.Item("minLCHit").GetValue<Slider>().Value >= farmLocation.MinionsHit &&
+                    _player.Distance(farmLocation.Position) <= E.Range)
+                {
+                    E.Cast(farmLocation.Position);
                 }
+            }
+        }
+
+        private static void Harass()
+        {
+            var target = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Magical);
+
+            if (target == null) return;
+            if (_config.Item("harassW").GetValue<bool>() && W.IsReady() && target.Distance(_player) < W.Range)
+            {
+                W.CastIfHitchanceEquals(target,
+                    target.IsMoving ? HitChance.High : HitChance.Medium,
+                    _config.Item("usePackets").GetValue<bool>());
+            }
+
+            if (_config.Item("harassE").GetValue<bool>() && E.IsReady() && target.Distance(_player) < E.Range)
+            {
+                E.CastIfHitchanceEquals(target,
+                    target.IsMoving ? HitChance.High : HitChance.Medium,
+                    _config.Item("usePackets").GetValue<bool>()
+                    );
             }
         }
 
