@@ -389,7 +389,7 @@ namespace Aatrox
             _config.SubMenu("Combo").AddItem(new MenuItem("useW", "Use W")).SetValue(true);
             _config.SubMenu("Combo")
                 .AddItem(new MenuItem("useWHealth", "Use W Health"))
-                .SetValue(new Slider(35, 0, 100));
+                .SetValue(new Slider(35, 1, 100));
             _config.SubMenu("Combo")
                 .AddItem(new MenuItem("useE", "Use E"))
                 .SetValue(true);
@@ -411,7 +411,7 @@ namespace Aatrox
                 .SetValue(true);
             _config.SubMenu("Harass")
                 .AddItem(new MenuItem("harassHealth", "Min. Health Percent"))
-                .SetValue(new Slider(50, 0, 100));
+                .SetValue(new Slider(50, 1, 100));
 
             // Items
             _config.AddSubMenu(new Menu("Items", "Items"));
@@ -430,7 +430,7 @@ namespace Aatrox
             _config.SubMenu("LaneClear").AddItem(new MenuItem("laneE", "Use E")).SetValue(true);
             _config.SubMenu("LaneClear")
                 .AddItem(new MenuItem("laneHealth", "Min Health Percent"))
-                .SetValue(new Slider(50, 0, 100));
+                .SetValue(new Slider(50, 1, 100));
 
             // Killsteal
             _config.AddSubMenu(new Menu("Killsteal", "Killsteal"));
