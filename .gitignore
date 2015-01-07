@@ -44,7 +44,6 @@ Temporary Items
 *.suo
 *.sln
 *.exe
-*.config
 *.manifest
 *.pdb
 *.dll
