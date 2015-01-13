@@ -144,7 +144,7 @@ namespace Swain
             
             if (target == null) return;
 
-            if (_player.CountEnemysInRange(R.Range) == 0 && _player.HasBuff("SwainMetamorphism"))
+            if (_player.CountEnemysInRange(R.Range) == 0 && _player.HasBuff("SwainMetamorphism") && _config.Item("autoDisableR").GetValue<bool>())
             {
                 R.Cast();
             }
@@ -159,7 +159,18 @@ namespace Swain
                 Q.Cast(target, _usePackets);
             }
 
-            if (_config.Item("useW").GetValue<bool>() && _player.Distance(target) <= W.Range && W.IsReady())
+            if (_config.Item("qBeforeW").GetValue<bool>() && _player.Distance(target) <= Q.Range && Q.IsReady() && W.IsReady())
+            {
+                Q.Cast(target, _usePackets);
+                if (target.HasBuffOfType(BuffType.Slow) || target.HasBuffOfType(BuffType.Stun))
+                {
+                    var hitc = new HitChance[] { HitChance.Low, HitChance.Medium, HitChance.High, HitChance.VeryHigh };
+
+                    W.CastIfHitchanceEquals(target, hitc[_config.Item("hitW").GetValue<StringList>().SelectedIndex],
+                        _usePackets);
+                }
+            }
+            else if (!_config.Item("qBeforeW").GetValue<bool>() && _config.Item("useW").GetValue<bool>() && _player.Distance(target) <= W.Range && W.IsReady())
             {
                 var hitc = new HitChance[] {HitChance.Low, HitChance.Medium, HitChance.High, HitChance.VeryHigh};
 
@@ -254,9 +265,11 @@ namespace Swain
             _config.SubMenu("Combo")
                 .AddItem(new MenuItem("hitW", "W HitChance"))
                 .SetValue(new StringList(new[] {"Low", "Medium", "High", "Very High"}, 2));
+            _config.SubMenu("Combo").AddItem(new MenuItem("qBeforeW", "Always Q before W")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("useE", "Use E")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("useR", "Use Ult")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("minR", "Min enemies to ult")).SetValue(new Slider(2, 1, 5));
+            _config.SubMenu("Combo").AddItem(new MenuItem("autoDisableR", "Automatically Disable Ult")).SetValue(true);
 
             // Harass
             _config.AddSubMenu(new Menu("Harass", "Harass"));
