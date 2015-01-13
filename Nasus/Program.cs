@@ -35,6 +35,9 @@ namespace Nasus
 
         static void Game_OnGameLoad(EventArgs args)
         {
+            _player = ObjectManager.Player;
+            if (_player.BaseSkinName != ChampionName) return;
+
             Config();
             CreateSpells();
             Game.OnGameUpdate += Game_OnGameUpdate;
@@ -56,6 +59,12 @@ namespace Nasus
                 Q.Cast();
                 _player.IssueOrder(GameObjectOrder.AttackUnit, target);
             }
+
+            if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit ||
+                _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear)
+            {
+                _player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+            }
         }
 
         private static void Game_OnDraw(EventArgs args)
@@ -64,12 +73,12 @@ namespace Nasus
 
             if (_config.Item("drawW").GetValue<Circle>().Active)
             {
-                Utility.DrawCircle(_player.Position, W.Range, drawing);
+                Render.Circle.DrawCircle(_player.Position, W.Range, drawing);
             }
 
             if (_config.Item("drawE").GetValue<Circle>().Active)
             {
-                Utility.DrawCircle(_player.Position, E.Range, drawing);
+                Render.Circle.DrawCircle(_player.Position, E.Range, drawing);
             }
         }
 
@@ -104,7 +113,7 @@ namespace Nasus
             {
                 var farmlocation =
                     MinionManager.GetBestCircularFarmLocation(
-                        MinionManager.GetMinions(_player.Position, E.Range)
+                        MinionManager.GetMinions(_player.Position, E.Range).Where(x => x.IsEnemy && !x.IsDead)
                             .Select(minion => minion.ServerPosition.To2D())
                             .ToList(), E.Width, E.Range);
 
@@ -119,14 +128,14 @@ namespace Nasus
 
         private static void LastHit()
         {
-            var minion = MinionManager.GetMinions(Q.Range, MinionTypes.All, MinionTeam.NotAlly,
-                MinionOrderTypes.Health);
+            var minion = MinionManager.GetMinions(Q.Range, MinionTypes.All, MinionTeam.NotAlly);
             foreach (var qtarget in minion.Where(x => !x.IsDead && !x.IsInvulnerable && _player.Distance(x) <= Q.Range))
             {
                 if (qtarget.Health < (Q.GetDamage(qtarget) + _player.BaseAttackDamage + _player.FlatPhysicalDamageMod) && (Q.IsReady() || _player.HasBuff("SiphoningStrike")))
                 {
                     Q.Cast();
                     _player.IssueOrder(GameObjectOrder.AttackUnit, qtarget);
+                    _player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
                 }
 //                Game.PrintChat((Q.GetDamage(qtarget) + _player.BaseAttackDamage + _player.FlatPhysicalDamageMod).ToString());
             }
@@ -182,7 +191,7 @@ namespace Nasus
             E = new Spell(SpellSlot.E, 650f);
             R = new Spell(SpellSlot.R, 225f);
 
-            E.SetSkillshot(E.Instance.SData.SpellCastTime, E.Instance.SData.LineWidth, E.Instance.SData.MissileSpeed,
+            E.SetSkillshot(E.Instance.SData.SpellCastTime, 400f, E.Instance.SData.MissileSpeed,
                 false, SkillshotType.SkillshotCircle);
 
             SpellList.Add(Q);
@@ -193,8 +202,6 @@ namespace Nasus
 
         private static void Config()
         {
-            _player = ObjectManager.Player;
-
             _config = new Menu(ChampionName, ChampionName, true);
 
             var targetSelectorMenu = new Menu("TargeSelector", "TargetSelector");
