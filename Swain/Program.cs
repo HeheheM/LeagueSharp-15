@@ -149,6 +149,11 @@ namespace Swain
                 R.Cast();
             }
 
+            if (_config.Item("useE").GetValue<bool>() && _player.Distance(target) <= E.Range && E.IsReady())
+            {
+                E.Cast(target, _usePackets);
+            }
+
             if (_config.Item("useQ").GetValue<bool>() && _player.Distance(target) <= Q.Range && Q.IsReady())
             {
                 Q.Cast(target, _usePackets);
@@ -160,11 +165,6 @@ namespace Swain
 
                 W.CastIfHitchanceEquals(target, hitc[_config.Item("hitW").GetValue<StringList>().SelectedIndex],
                     _usePackets);
-            }
-
-            if (_config.Item("useE").GetValue<bool>() && _player.Distance(target) <= E.Range && E.IsReady())
-            {
-                E.Cast(target, _usePackets);
             }
 
             if (_config.Item("useR").GetValue<bool>() && _player.Distance(target) <= R.Range && R.IsReady())
