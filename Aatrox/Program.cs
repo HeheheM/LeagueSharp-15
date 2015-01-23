@@ -4,7 +4,6 @@ using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
 using System.Drawing;
-using LeagueSharp.Network.Packets;
 using SharpDX;
 using Color = System.Drawing.Color;
 
@@ -57,23 +56,23 @@ namespace Aatrox
                 _config.Item("useItems").GetValue<bool>() &&
                 _config.Item("HYDRA").GetValue<bool>())
             {
-                var hydra = Items.HasItem(ItemData.Ravenous_Hydra_Melee_Only.Id);
-                var tiamat = Items.HasItem(ItemData.Tiamat_Melee_Only.Id);
+                var hydra = Items.HasItem(LeagueSharp.Common.Data.ItemData.Ravenous_Hydra_Melee_Only.Id);
+                var tiamat = Items.HasItem(LeagueSharp.Common.Data.ItemData.Tiamat_Melee_Only.Id);
 
 
                 if (hydra)
                 {
-                    if (Items.CanUseItem(ItemData.Ravenous_Hydra_Melee_Only.Id))
+                    if (Items.CanUseItem(LeagueSharp.Common.Data.ItemData.Ravenous_Hydra_Melee_Only.Id))
                     {
-                        Items.UseItem(ItemData.Ravenous_Hydra_Melee_Only.Id);
+                        Items.UseItem(LeagueSharp.Common.Data.ItemData.Ravenous_Hydra_Melee_Only.Id);
                     }
                 }
 
                 if (tiamat)
                 {
-                    if (Items.CanUseItem(ItemData.Tiamat_Melee_Only.Id))
+                    if (Items.CanUseItem(LeagueSharp.Common.Data.ItemData.Tiamat_Melee_Only.Id))
                     {
-                        Items.UseItem(ItemData.Tiamat_Melee_Only.Id);
+                        Items.UseItem(LeagueSharp.Common.Data.ItemData.Tiamat_Melee_Only.Id);
                     }
                 }
             }
@@ -128,25 +127,25 @@ namespace Aatrox
             {
                 if (_config.Item("BOTRK").GetValue<bool>())
                 {
-                    var botrk = Items.HasItem(ItemData.Blade_of_the_Ruined_King.Id);
-                    var cutlass = Items.HasItem(ItemData.Bilgewater_Cutlass.Id);
+                    var botrk = Items.HasItem(LeagueSharp.Common.Data.ItemData.Blade_of_the_Ruined_King.Id);
+                    var cutlass = Items.HasItem(LeagueSharp.Common.Data.ItemData.Bilgewater_Cutlass.Id);
 
                     if (botrk || cutlass)
                     {
                         if (botrk)
                         {
-                            Items.UseItem(ItemData.Blade_of_the_Ruined_King.Id, target);
+                            Items.UseItem(LeagueSharp.Common.Data.ItemData.Blade_of_the_Ruined_King.Id, target);
                         }
                         else
                         {
-                            Items.UseItem(ItemData.Bilgewater_Cutlass.Id, target);
+                            Items.UseItem(LeagueSharp.Common.Data.ItemData.Bilgewater_Cutlass.Id, target);
                         }
                     }
                 }
 
                 if (_config.Item("OMEN").GetValue<bool>())
                 {
-                    var omen = Items.HasItem(ItemData.Randuins_Omen.Id);
+                    var omen = Items.HasItem(LeagueSharp.Common.Data.ItemData.Randuins_Omen.Id);
 
                     if (omen)
                     {
@@ -159,9 +158,9 @@ namespace Aatrox
 
                         if (champcount >= _config.Item("omenCount").GetValue<Slider>().Value)
                         {
-                            if (Items.CanUseItem(ItemData.Randuins_Omen.Id))
+                            if (Items.CanUseItem(LeagueSharp.Common.Data.ItemData.Randuins_Omen.Id))
                             {
-                                Items.UseItem(ItemData.Randuins_Omen.Id);
+                                Items.UseItem(LeagueSharp.Common.Data.ItemData.Randuins_Omen.Id);
                             }
                         }
                     }
@@ -169,13 +168,13 @@ namespace Aatrox
 
                 if (_config.Item("GBLADE").GetValue<bool>())
                 {
-                    var gblade = Items.HasItem(ItemData.Youmuus_Ghostblade.ToString());
+                    var gblade = Items.HasItem(LeagueSharp.Common.Data.ItemData.Youmuus_Ghostblade.ToString());
 
                     if (gblade)
                     {
-                        if (Items.CanUseItem(ItemData.Youmuus_Ghostblade.ToString()))
+                        if (Items.CanUseItem(LeagueSharp.Common.Data.ItemData.Youmuus_Ghostblade.ToString()))
                         {
-                            Items.UseItem(ItemData.Youmuus_Ghostblade.ToString());
+                            Items.UseItem(LeagueSharp.Common.Data.ItemData.Youmuus_Ghostblade.ToString());
                         }
                     }
                 }
